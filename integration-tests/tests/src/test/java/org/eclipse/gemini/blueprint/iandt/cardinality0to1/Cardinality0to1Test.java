@@ -33,12 +33,16 @@ import org.eclipse.gemini.blueprint.service.ServiceUnavailableException;
 
 public class Cardinality0to1Test extends BaseIntegrationTest {
 
-	public void testSystemOutErr() throws Exception {
+	public void testSystemOut() throws Exception {
 
 		assertNotNull("System.out should be not null", System.out);
-		assertNotNull("System.err should be not null", System.err);
 
 	}
 
+	public void testSystemErr() throws Exception {
+
+		assertNotNull("System.err should be not null", System.err);
+
+	}
 
 }
