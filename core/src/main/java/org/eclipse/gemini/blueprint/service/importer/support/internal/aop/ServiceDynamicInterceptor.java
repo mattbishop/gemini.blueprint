@@ -96,24 +96,16 @@ public class ServiceDynamicInterceptor extends ServiceInvoker implements Initial
 	private class ServiceLookUpCallback extends DefaultRetryCallback<Object> {
 
 		public Object doWithRetry() {
-			// before checking for a service, check whether the proxy is still valid
-			if (destroyed && !isDuringDestruction) {
-				throw new ServiceProxyDestroyedException();
-			}
-
-			return (holder != null ? holder.getService() : null);
+		    ReferenceHolder holderCopy = getServiceHolder();
+			return (holderCopy != null ? holderCopy.getService() : null);
 		}
 	}
 
 	private class ServiceReferenceLookUpCallback extends DefaultRetryCallback<ServiceReference> {
 
 		public ServiceReference doWithRetry() {
-			// before checking for a service, check whether the proxy is still valid
-			if (destroyed && !isDuringDestruction) {
-				throw new ServiceProxyDestroyedException();
-			}
-
-			return (holder != null ? holder.getReference() : null);
+		    ReferenceHolder holderCopy = getServiceHolder();
+			return (holderCopy != null ? holderCopy.getReference() : null);
 		}
 	}
 
@@ -396,7 +388,17 @@ public class ServiceDynamicInterceptor extends ServiceInvoker implements Initial
 		listener = new Listener();
 	}
 
-	public Object getTarget() {
+	public ReferenceHolder getServiceHolder() {
+	    synchronized (lock) {
+	        // before checking for a service, check whether the proxy is still valid
+	        if (destroyed && !isDuringDestruction) {
+	            throw new ServiceProxyDestroyedException();
+	        }
+	        return holder;
+	    }
+    }
+
+    public Object getTarget() {
 		Object target = lookupService();
 
 		// nothing found
@@ -423,6 +425,10 @@ public class ServiceDynamicInterceptor extends ServiceInvoker implements Initial
 	 * handling the service reference.
 	 */
 	private Object lookupService() {
+	    ReferenceHolder holderCopy = getServiceHolder();
+	    if (holderCopy != null) {
+	        return holderCopy.getService();
+	    }
 		synchronized (lock) {
 			return retryTemplate.execute(retryCallback);
 		}
