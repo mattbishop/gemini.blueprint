@@ -2,12 +2,12 @@
  * Copyright (c) 2006, 2010 VMware Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
- * and Apache License v2.0 which accompanies this distribution. 
- * The Eclipse Public License is available at 
+ * and Apache License v2.0 which accompanies this distribution.
+ * The Eclipse Public License is available at
  * http://www.eclipse.org/legal/epl-v10.html and the Apache License v2.0
  * is available at http://www.opensource.org/licenses/apache2.0.php.
- * You may elect to redistribute this code under either of these licenses. 
- * 
+ * You may elect to redistribute this code under either of these licenses.
+ *
  * Contributors:
  *   VMware Inc.
  *****************************************************************************/
@@ -32,6 +32,7 @@ import org.springframework.core.MethodParameter;
 import org.springframework.core.convert.TypeDescriptor;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Costin Leau
@@ -84,9 +85,12 @@ public class TypeFactoryTest {
 
 		public void typeVariable(AtomicReference<A> arg) {
 		}
-		
+
 		public void customDictionary(MyCustomDictionary customDict) {
 		}
+	}
+
+	private static class RecursiveGenericType<T extends Comparable<T>> {
 	}
 
     @Test
@@ -228,11 +232,17 @@ public class TypeFactoryTest {
 		assertEquals(Object.class, tp.getActualTypeArgument(0).getRawClass());
 		assertEquals(Object.class, tp.getActualTypeArgument(1).getRawClass());
 	}
-	
+
     @Test
 	public void testUnknownType() throws Exception {
 		ReifiedType type = TypeFactory.getType(TypeDescriptor.forObject(null));
 		assertEquals(Object.class, type.getRawClass());
+	}
+
+	@Test
+	public void testRecursiveGenericsType() throws Exception {
+		ReifiedType type = TypeFactory.getType(TypeDescriptor.valueOf(RecursiveGenericType.class));
+		assertNotNull(type);
 	}
 
 	private ReifiedType getReifiedTypeFor(String methodName) {
