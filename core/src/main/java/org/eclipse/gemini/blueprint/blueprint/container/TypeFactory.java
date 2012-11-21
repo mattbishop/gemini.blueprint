@@ -134,8 +134,18 @@ class TypeFactory {
 		}
 
 		if (targetType instanceof TypeVariable) {
-			Type[] bounds = ((TypeVariable<?>) targetType).getBounds();
-			return getReifiedType(bounds[0]);
+			TypeVariable<?> typeVariable = (TypeVariable<?>) targetType;
+			Type[] bounds = typeVariable.getBounds();
+			Type boundZero = bounds[0];
+			if (bounds.length == 1 && boundZero instanceof ParameterizedType) {
+				Type ata = ((ParameterizedType) boundZero).getActualTypeArguments()[0];
+				if (targetType.equals(ata)) {
+					//recursive declaration like <T extends Comparable<T>>
+					return OBJECT;
+				}
+			}
+
+			return getReifiedType(boundZero);
 		}
 
 		if (targetType instanceof GenericArrayType) {

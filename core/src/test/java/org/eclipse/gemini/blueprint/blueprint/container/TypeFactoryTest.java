@@ -94,7 +94,13 @@ public class TypeFactoryTest {
 	private static class RecursiveGenericType<T extends Comparable<T>> {
 	}
 
-    @Test
+	private static class SingleAndRecursiveGenericType<S extends String, T extends Comparable<T>> {
+	}
+
+	private static class MultipleRecursiveGenericType<T extends Comparable<T>, U extends T> {
+	}
+
+	@Test
 	public void testJdk4Classes() throws Exception {
 		ReifiedType tp = getReifiedTypeFor("rawList");
 		assertEquals(1, tp.size());
@@ -244,6 +250,10 @@ public class TypeFactoryTest {
 	public void testRecursiveGenericsType() throws Exception {
 		ReifiedType type = TypeFactory.getType(TypeDescriptor.valueOf(RecursiveGenericType.class));
 		assertNotNull(type);
+		ReifiedType type2 = TypeFactory.getType(TypeDescriptor.valueOf(SingleAndRecursiveGenericType.class));
+		assertNotNull(type2);
+		ReifiedType type3 = TypeFactory.getType(TypeDescriptor.valueOf(MultipleRecursiveGenericType.class));
+		assertNotNull(type3);
 	}
 
 	private ReifiedType getReifiedTypeFor(String methodName) {
